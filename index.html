@@ -2,398 +2,657 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Pickle Invite Exchange · 피클 AI 초대장 실시간 나눔</title>
-  <meta name="description" content="피클(Pickle) AI 클로즈드 베타 초대장 실시간 나눔 및 공유 플랫폼" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>피클(Pickle) AI 실시간 초대장 나눔소</title>
+  <meta name="description" content="남는 피클 AI 초대장을 나누고 실시간으로 받아가는 가장 깔끔한 초대 허브" />
 
-  <!-- Fonts & Icons -->
+  <!-- Pretendard Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Confetti -->
+  <!-- Confetti JS -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              lime: '#bef264',
-              emerald: '#34d399',
-              dark: '#05070a',
-              card: '#0c1017',
-              border: 'rgba(255, 255, 255, 0.08)',
-              borderHover: 'rgba(190, 242, 100, 0.3)',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
+    :root {
+      /* Pickle Modern Identity: Fresh Forest & Crisp Minimal */
+      --pickle-primary: #059669;      /* Fresh Emerald Green */
+      --pickle-primary-dark: #047857;
+      --pickle-primary-light: #ecfdf5; /* Subtle Mint Surface */
+      --pickle-lime: #84cc16;
+      
+      --slate-900: #0f172a;           /* Strong Text */
+      --slate-700: #334155;           /* Body Text */
+      --slate-500: #64748b;           /* Muted Text */
+      --slate-400: #94a3b8;           /* Caption Text */
+      
+      --bg-page: #f8fafc;             /* Soft off-white page background */
+      --bg-surface: #ffffff;          /* Pure white card surface */
+      --bg-subtle: #f1f5f9;           /* Secondary container */
+      
+      --border-subtle: #e2e8f0;
+      --border-focus: #10b981;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+      --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: -0.02em;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
-      background-color: #05070a;
-      color: #f4f4f5;
-      font-family: 'Pretendard', sans-serif;
-      overflow-x: hidden;
+      background-color: var(--bg-page);
+      color: var(--slate-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    /* Ambient Glow Background */
-    .ambient-glow {
-      position: fixed;
-      top: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 100vw; max-width: 1200px;
-      height: 480px;
-      background: radial-gradient(50% 50% at 50% 0%, rgba(190, 242, 100, 0.12) 0%, rgba(52, 211, 153, 0.04) 50%, transparent 100%);
-      pointer-events: none;
-      z-index: 0;
+    /* Container: Mobile First (max 480px) */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 20px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
 
-    /* Subtle Grid Pattern */
-    .bg-grid {
-      background-size: 32px 32px;
-      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    /* Brand Header */
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 12px;
     }
 
-    /* Hairline Glass Card */
-    .card-surface {
-      background: rgba(12, 16, 23, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    .brand-pill {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-subtle);
+    }
+    .brand-pill span.icon {
+      font-size: 14px;
+    }
+    .brand-pill span.text {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pickle-primary);
     }
 
-    .card-interactive {
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: var(--slate-900);
     }
-    .card-interactive:hover {
-      border-color: rgba(190, 242, 100, 0.25);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 0 24px -4px rgba(190, 242, 100, 0.1);
+    .title .accent {
+      color: var(--pickle-primary);
     }
 
-    /* Shimmer Effect for Primary Button */
-    @keyframes shimmer-sweep {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
+    .subtitle {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--slate-500);
     }
-    .btn-shimmer::after {
+
+    /* Bento Hero Card: 이학수 공식 추천 */
+    .bento-hero {
+      background: var(--bg-surface);
+      border: 1.5px solid #d1fae5;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-float);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bento-hero::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-      animation: shimmer-sweep 3s infinite ease-in-out;
-      pointer-events: none;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #84cc16);
     }
 
-    /* Custom input outline */
-    input:focus {
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hero-tag {
+      background-color: var(--pickle-primary-light);
+      color: var(--pickle-primary-dark);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hero-remain {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-400);
+    }
+
+    .code-display {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .code-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: 0.04em;
+    }
+
+    .code-badge {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--pickle-primary);
+      background: #ffffff;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #d1fae5;
+    }
+
+    /* Buttons */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .btn {
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-pickle {
+      background-color: var(--pickle-primary);
+      color: #ffffff;
+    }
+    .btn-pickle:hover {
+      background-color: var(--pickle-primary-dark);
+    }
+
+    .btn-copy {
+      background-color: var(--bg-subtle);
+      color: var(--slate-700);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 20px;
+    }
+    .btn-copy:hover {
+      background-color: #e2e8f0;
+    }
+
+    /* Interactive Quick Pick Banner */
+    .quick-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-subtle);
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.1s ease;
+    }
+    .quick-banner:hover {
+      border-color: #a7f3d0;
+      transform: translateY(-1px);
+    }
+    .quick-banner:active {
+      transform: scale(0.99);
+    }
+
+    .quick-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .quick-desc {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--slate-500);
+      margin-top: 2px;
+    }
+    .quick-arrow {
+      color: var(--pickle-primary);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Section & Cards */
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2px;
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+    .section-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pickle-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .invite-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .invite-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-subtle);
+      transition: border-color 0.15s ease;
+    }
+    .invite-card:hover {
+      border-color: #cbd5e1;
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .card-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .card-code {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+    .card-meta {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--slate-400);
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-action {
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.12s ease;
+    }
+    .btn-action-copy {
+      background: var(--bg-subtle);
+      color: var(--slate-700);
+    }
+    .btn-action-copy:hover {
+      background: #e2e8f0;
+    }
+    .btn-action-open {
+      background: var(--pickle-primary-light);
+      color: var(--pickle-primary-dark);
+    }
+    .btn-action-open:hover {
+      background: #d1fae5;
+    }
+
+    /* Donate Drawer */
+    .donate-box {
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .donate-box.active {
+      display: flex;
+    }
+    .input-clean {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--slate-900);
+      width: 100%;
+    }
+    .input-clean:focus {
       outline: none;
-      border-color: #bef264;
-      box-shadow: 0 0 0 3px rgba(190, 242, 100, 0.15);
+      border-color: var(--pickle-primary);
+      background: #ffffff;
+    }
+
+    /* Minimal Toast */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15, 23, 42, 0.94);
+      color: #ffffff;
+      padding: 11px 20px;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer */
+    .footer {
+      padding-top: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--slate-400);
+      line-height: 1.6;
+      border-top: 1px solid var(--border-subtle);
     }
   </style>
 </head>
+<body>
 
-<body class="bg-grid min-h-screen relative selection:bg-brand-lime selection:text-black">
-  <div class="ambient-glow"></div>
+  <div class="app-container">
 
-  <main class="relative z-10 max-w-xl mx-auto px-4 pt-10 pb-20 space-y-8">
-
-    <!-- 상단 네비게이션 & 브랜드 -->
-    <header class="flex items-center justify-between text-xs text-zinc-400">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-brand-lime animate-pulse"></span>
-        <span class="font-mono tracking-wider uppercase text-zinc-300 font-semibold text-[11px]">Pickle / Invites</span>
+    <!-- 상단 브랜드 헤더 -->
+    <header class="header">
+      <div class="brand-pill">
+        <span class="icon">🥒</span>
+        <span class="text">Pickle AI Hub</span>
       </div>
-      <div class="flex items-center gap-2 text-[11px]">
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>실시간 동기화 중
-        </span>
-      </div>
+      <h1 class="title">
+        피클 초대장을 나누는<br>
+        <span class="accent">가장 심플한 나눔소</span>
+      </h1>
+      <p class="subtitle">
+        초대 링크로 가입하면 초대한 사람과 가입한 분 모두<br>
+        <strong>피클 일일 사용량 100% 초기화 티켓</strong>을 받아요.
+      </p>
     </header>
 
-    <!-- 헤더 타이틀 섹션 -->
-    <section class="space-y-3 pt-2">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-        피클 초대장을 나누는<br>
-        <span class="bg-gradient-to-r from-brand-lime via-emerald-300 to-teal-300 bg-clip-text text-transparent">가장 심플한 방법.</span>
-      </h1>
-      <p class="text-sm text-zinc-400 leading-relaxed font-normal">
-        남는 피클 AI 초대 링크를 나누고 필요한 분이 실시간으로 받아갑니다.<br class="hidden sm:inline">
-        초대 링크로 가입 시 양쪽 모두에게 <strong>한도 전체 초기화 티켓</strong>이 지급됩니다.
-      </p>
-    </section>
+    <!-- 이학수 공식 VIP 초대장 카드 -->
+    <section class="bento-hero">
+      <div class="hero-top">
+        <span class="hero-tag">
+          <span>👑</span>
+          <span>이학수 공식 초대장</span>
+        </span>
+        <span class="hero-remain">잔여 20회 · 인증 완료</span>
+      </div>
 
-    <!-- 핵심 1: 학수님 공식 인증 VIP 추천 카드 (Linear Style Bento) -->
-    <section class="card-surface rounded-2xl p-6 relative overflow-hidden border border-brand-lime/30 bg-gradient-to-b from-brand-card to-zinc-950/80">
-      <!-- Faint Corner Accent Glow -->
-      <div class="absolute -top-12 -right-12 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none"></div>
-
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded-md bg-brand-lime text-black font-extrabold text-[11px] tracking-tight">
-              VERIFIED
-            </span>
-            <span class="text-xs text-zinc-300 font-medium">이학수 공식 초대장</span>
-          </div>
-          <span class="text-xs font-mono text-brand-lime flex items-center gap-1 font-semibold">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            즉시 사용 가능
-          </span>
-        </div>
-
-        <div class="space-y-1">
-          <div class="text-xs text-zinc-400 font-mono">INVITE CODE</div>
-          <div class="flex items-center justify-between bg-black/50 border border-zinc-800 rounded-xl px-4 py-3">
-            <div class="font-mono text-lg sm:text-xl font-bold text-white tracking-widest" id="vip-code-text">BNB6CF52</div>
-            <div class="text-xs text-zinc-500 font-mono">20회 잔여</div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <a href="https://pickle.com/i/BNB6CF52" target="_blank"
-             class="btn-shimmer relative overflow-hidden py-3 px-4 rounded-xl bg-brand-lime hover:bg-[#b0e854] text-black font-bold text-xs sm:text-sm text-center transition flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]">
-            <span>피클 앱으로 열기</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-          </a>
-          <button onclick="copyCode('BNB6CF52', 'https://pickle.com/i/BNB6CF52')"
-                  class="py-3 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/80 text-white font-medium text-xs sm:text-sm text-center transition active:scale-[0.98] flex items-center justify-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            <span>코드 복사</span>
-          </button>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 600; color: var(--slate-500); margin-bottom: 5px;">공식 초대 코드</div>
+        <div class="code-display">
+          <span class="code-text" id="vip-code">BNB6CF52</span>
+          <span class="code-badge">즉시 가입 가능</span>
         </div>
       </div>
-    </section>
 
-    <!-- 핵심 2: 원클릭 자동 배정기 -->
-    <section class="card-surface rounded-2xl p-5 space-y-3 border border-zinc-800">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-sm font-semibold text-white">실시간 랜덤 배정</h2>
-          <p class="text-xs text-zinc-400 mt-0.5">유효한 커뮤니티 나눔 링크 중 1개를 즉시 배정합니다.</p>
-        </div>
-        <button onclick="pickRandomInvite()"
-                class="px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-black font-semibold text-xs transition active:scale-[0.97] flex items-center gap-1.5 shrink-0">
-          <svg class="w-3.5 h-3.5 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span>랜덤 1개 뽑기</span>
+      <div class="btn-grid">
+        <a href="https://pickle.com/i/BNB6CF52" target="_blank" class="btn btn-pickle">
+          피클 앱으로 바로 열기
+        </a>
+        <button onclick="copyCode('BNB6CF52', 'https://pickle.com/i/BNB6CF52')" class="btn btn-copy">
+          코드 복사
         </button>
       </div>
-
-      <!-- 배정 결과 박스 (기본 숨김) -->
-      <div id="result-box" class="hidden p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-brand-lime font-medium flex items-center gap-1">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            초대장 배정 완료
-          </span>
-          <span class="text-[11px] font-mono text-zinc-500" id="result-time">방금</span>
-        </div>
-        <div class="flex items-center justify-between bg-black px-3.5 py-2.5 rounded-lg border border-zinc-800">
-          <span class="font-mono text-xs text-zinc-200 truncate mr-3" id="result-url">https://pickle.com/i/...</span>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="copyResultUrl()" class="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs rounded font-medium">복사</button>
-            <a id="result-open-link" href="#" target="_blank" class="px-2.5 py-1 bg-brand-lime text-black text-xs rounded font-bold">열기</a>
-          </div>
-        </div>
-      </div>
     </section>
 
-    <!-- 핵심 3: 실시간 초대장 나눔 피드 (Clean Minimal Table) -->
-    <section class="space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <h2 class="text-sm font-semibold text-white">커뮤니티 나눔 풀</h2>
-          <span class="text-[11px] font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800" id="total-badge">8개 대기</span>
+    <!-- 실시간 랜덤 1개 받기 배너 -->
+    <div class="quick-banner" onclick="claimRandom()">
+      <div>
+        <div class="quick-title">
+          <span>⚡</span>
+          <span>실시간 초대장 1개 받기</span>
         </div>
-        <button onclick="toggleSubmitForm()"
-                class="text-xs text-brand-lime hover:underline underline-offset-4 flex items-center gap-1 font-medium">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          내 초대장 등록하기
-        </button>
+        <div class="quick-desc">대기 중인 최신 커뮤니티 초대장을 즉시 배정해 드려요</div>
+      </div>
+      <span class="quick-arrow">›</span>
+    </div>
+
+    <!-- 나눔 리스트 섹션 -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">커뮤니티 나눔 목록</div>
+        <button class="section-link" onclick="toggleDonate()">+ 내 초대장 기부</button>
       </div>
 
-      <!-- 내 초대장 등록 인라인 폼 (토글) -->
-      <div id="submit-form" class="hidden card-surface rounded-2xl p-4 space-y-3 border border-zinc-800">
-        <div class="text-xs font-semibold text-white">내 피클 초대장 기부</div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <input type="text" id="input-url" placeholder="https://pickle.com/i/..."
-                 class="sm:col-span-2 px-3 py-2 bg-black border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-600 font-mono" />
-          <input type="number" id="input-count" placeholder="남은 횟수 (예: 20)"
-                 class="px-3 py-2 bg-black border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-600 font-mono" />
-        </div>
-        <div class="flex justify-end gap-2">
-          <button onclick="toggleSubmitForm()" class="px-3 py-1.5 text-xs text-zinc-400 hover:text-white">취소</button>
-          <button onclick="submitInvite()" class="px-4 py-1.5 bg-brand-lime hover:bg-[#b0e854] text-black font-semibold text-xs rounded-xl">등록</button>
+      <!-- 내 초대장 등록 폼 -->
+      <div class="donate-box" id="donate-box">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--slate-900);">내 피클 초대장 등록하기</div>
+        <input type="text" id="input-url" class="input-clean" placeholder="초대 링크 붙여넣기 (https://pickle.com/i/...)" />
+        <div style="display: flex; gap: 6px; justify-content: flex-end;">
+          <button onclick="toggleDonate()" class="btn btn-copy" style="padding: 8px 14px; font-size: 13px;">취소</button>
+          <button onclick="submitInvite()" class="btn btn-pickle" style="padding: 8px 16px; font-size: 13px;">등록</button>
         </div>
       </div>
 
       <!-- 리스트 아이템 -->
-      <div class="space-y-1.5" id="invites-container">
+      <div class="invite-feed" id="invite-feed">
         <!-- JS 렌더링 -->
       </div>
     </section>
 
-    <!-- 푸터 & 이용 안내 -->
-    <footer class="pt-6 border-t border-zinc-900 text-center space-y-2 text-xs text-zinc-500">
-      <p>본 서비스는 피클(Pickle) AI 사용자 간의 자발적인 초대 코드 공유 허브입니다.</p>
-      <p class="font-mono text-[11px] text-zinc-600">Pickle Invite Exchange · Built with Pure HTML & Tailwind</p>
+    <!-- 푸터 -->
+    <footer class="footer">
+      <p style="font-weight: 600; color: var(--slate-700); margin-bottom: 4px;">이용 꿀팁</p>
+      <p>• 초대 링크로 가입 시 서로에게 100% 사용량 초기화 티켓이 1장씩 들어옵니다.</p>
+      <p>• 남는 초대를 등록해 두시면 다른 분들이 가입할 때마다 티켓이 자동 적립됩니다.</p>
+      <p style="margin-top: 14px; color: var(--slate-400);">© 2026 Pickle Invite Hub · Made for Community</p>
     </footer>
 
-  </main>
+  </div>
 
   <!-- 토스트 알림창 -->
-  <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-zinc-900 text-white border border-zinc-700/80 text-xs font-medium py-2 px-4 rounded-full shadow-2xl opacity-0 transition-all duration-200 pointer-events-none z-50 flex items-center gap-2">
-    <svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-    <span id="toast-text">복사되었습니다.</span>
+  <div class="toast-msg" id="toast">
+    <span>✨</span>
+    <span id="toast-text">초대 링크가 복사되었어요</span>
   </div>
 
   <script>
-    const invitesData = [
-      { id: 'v1', code: 'BNB6CF52', url: 'https://pickle.com/i/BNB6CF52', source: '이학수 공식 초대장', remain: '20회', status: '인증됨' },
-      { id: 'c1', code: 'P92KA81M', url: 'https://pickle.com/i/P92KA81M4Q09', source: '클리앙 AI게시판', remain: '9회', status: '유효' },
-      { id: 'c2', code: 'W34NX79K', url: 'https://pickle.com/i/W34NX79KL21V', source: 'X(Twitter) 공유', remain: '6회', status: '유효' },
-      { id: 'c3', code: '7K9GB4HM', url: 'https://pickle.com/i/7K9GB4HMN88L', source: '디시인사이드 나눔', remain: '14회', status: '유효' },
-      { id: 'c4', code: 'M88LQ21K', url: 'https://pickle.com/i/M88LQ21K9GB4', source: '테크 블로그', remain: '17회', status: '유효' },
-      { id: 'c5', code: 'K01PB98L', url: 'https://pickle.com/i/K01PB98LA33X', source: '스레드 유저 기부', remain: '11회', status: '유효' },
-      { id: 'c6', code: 'H66TR22K', url: 'https://pickle.com/i/H66TR22KL88B', source: '개발자 오픈챗', remain: '19회', status: '유효' },
+    const defaultList = [
+      { id: '1', code: 'BNB6CF52', url: 'https://pickle.com/i/BNB6CF52', source: '이학수 공식 추천', remain: '20회 남음', icon: '🥒' },
+      { id: '2', code: 'P92KA81M', url: 'https://pickle.com/i/P92KA81M4Q09', source: '클리앙 AI게시판', remain: '9회 남음', icon: '💬' },
+      { id: '3', code: '7K9GB4HM', url: 'https://pickle.com/i/7K9GB4HMN88L', source: '디시 AI갤러리', remain: '14회 남음', icon: '⚡' },
+      { id: '4', code: 'W34NX79K', url: 'https://pickle.com/i/W34NX79KL21V', source: 'X(Twitter) 나눔', remain: '6회 남음', icon: '🐦' },
+      { id: '5', code: 'M88LQ21K', url: 'https://pickle.com/i/M88LQ21K9GB4', source: '테크 블로그 공유', remain: '17회 남음', icon: '📝' },
+      { id: '6', code: 'K01PB98L', url: 'https://pickle.com/i/K01PB98LA33X', source: '스레드 유저 기부', remain: '11회 남음', icon: '🧵' }
     ];
 
-    let currentInvites = JSON.parse(localStorage.getItem('pickle_clean_invites')) || invitesData;
+    let currentList = JSON.parse(localStorage.getItem('pickle_modern_list')) || defaultList;
 
-    function renderList() {
-      const container = document.getElementById('invites-container');
-      container.innerHTML = '';
+    function renderFeed() {
+      const feed = document.getElementById('invite-feed');
+      feed.innerHTML = '';
 
-      currentInvites.forEach(item => {
-        const row = document.createElement('div');
-        row.className = "card-surface card-interactive rounded-xl p-3 flex items-center justify-between";
-        row.innerHTML = `
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="font-mono text-xs font-bold text-white tracking-wider">${item.code}</span>
-            <span class="text-zinc-600 text-xs">|</span>
-            <span class="text-xs text-zinc-400 truncate">${item.source}</span>
+      currentList.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'invite-card';
+        card.innerHTML = `
+          <div class="card-left">
+            <div class="card-avatar">${item.icon || '🎁'}</div>
+            <div>
+              <div class="card-code">${item.code}</div>
+              <div class="card-meta">
+                <span>${item.source}</span>
+                <span>·</span>
+                <span style="color: var(--pickle-primary); font-weight: 600;">${item.remain}</span>
+              </div>
+            </div>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="text-[11px] font-mono text-zinc-400">${item.remain}</span>
-            <button onclick="copyCode('${item.code}', '${item.url}')"
-                    class="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs rounded-lg font-medium transition">
-              복사
-            </button>
-            <a href="${item.url}" target="_blank"
-               class="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-brand-lime text-xs rounded-lg font-medium transition">
-              열기
-            </a>
+          <div class="card-actions">
+            <button onclick="copyCode('${item.code}', '${item.url}')" class="btn-action btn-action-copy">복사</button>
+            <a href="${item.url}" target="_blank" class="btn-action btn-action-open">열기</a>
           </div>
         `;
-        container.appendChild(row);
+        feed.appendChild(card);
       });
-
-      document.getElementById('total-badge').innerText = `${currentInvites.length}개 대기`;
     }
 
-    function showToast(msg) {
+    function showToast(text) {
       const toast = document.getElementById('toast');
-      const text = document.getElementById('toast-text');
-      text.innerText = msg;
-      toast.classList.remove('opacity-0', 'translate-y-2');
-      toast.classList.add('opacity-100', 'translate-y-0');
+      document.getElementById('toast-text').innerText = text;
+      toast.classList.add('show');
       setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('show');
       }, 2000);
     }
 
     function shootConfetti() {
       if (typeof confetti === 'function') {
         confetti({
-          particleCount: 40,
-          spread: 60,
+          particleCount: 35,
+          spread: 55,
           origin: { y: 0.8 },
-          colors: ['#bef264', '#34d399', '#ffffff']
+          colors: ['#059669', '#10b981', '#84cc16', '#334155']
         });
       }
     }
 
     function copyCode(code, url) {
       navigator.clipboard.writeText(url).then(() => {
-        showToast(`초대 링크가 복사되었습니다 (${code})`);
+        showToast(`[${code}] 링크가 복사되었어요`);
         shootConfetti();
       });
     }
 
-    function pickRandomInvite() {
-      // 50% 확률로 학수님 공식 초대장 배정, 50%는 풀에서 배정
+    function claimRandom() {
       const isVip = Math.random() < 0.5;
-      const selected = isVip ? currentInvites[0] : currentInvites[Math.floor(Math.random() * currentInvites.length)];
-
-      const box = document.getElementById('result-box');
-      const urlText = document.getElementById('result-url');
-      const openBtn = document.getElementById('result-open-link');
-
-      urlText.innerText = selected.url;
-      openBtn.href = selected.url;
-      box.classList.remove('hidden');
-
-      showToast(`초대장이 배정되었습니다 (${selected.code})`);
-      shootConfetti();
-    }
-
-    function copyResultUrl() {
-      const url = document.getElementById('result-url').innerText;
-      navigator.clipboard.writeText(url).then(() => {
-        showToast("배정된 초대 링크가 복사되었습니다.");
+      const pick = isVip ? currentList[0] : currentList[Math.floor(Math.random() * currentList.length)];
+      
+      navigator.clipboard.writeText(pick.url).then(() => {
+        showToast(`[${pick.code}] 초대 링크가 배정·복사되었어요!`);
         shootConfetti();
       });
     }
 
-    function toggleSubmitForm() {
-      const form = document.getElementById('submit-form');
-      form.classList.toggle('hidden');
+    function toggleDonate() {
+      const box = document.getElementById('donate-box');
+      box.classList.toggle('active');
     }
 
     function submitInvite() {
       const url = document.getElementById('input-url').value.trim();
-      const count = document.getElementById('input-count').value.trim() || '20';
-
       if (!url.startsWith('http')) {
-        alert("올바른 피클 초대 링크를 입력해주세요.");
+        alert("올바른 피클 초대 링크를 입력해 주세요.");
         return;
       }
 
-      const code = url.split('/').pop() || 'INVITE';
+      const code = url.split('/').pop().slice(0, 8) || 'INVITE';
       const newItem = {
-        id: 'usr_' + Date.now(),
-        code: code.slice(0, 8),
+        id: 'user_' + Date.now(),
+        code: code,
         url: url,
-        source: '커뮤니티 기부',
-        remain: `${count}회`,
-        status: '유효'
+        source: '커뮤니티 나눔',
+        remain: '20회 남음',
+        icon: '🌱'
       };
 
-      currentInvites.splice(1, 0, newItem);
-      localStorage.setItem('pickle_clean_invites', JSON.stringify(currentInvites));
-      renderList();
-      toggleSubmitForm();
-      showToast("초대장이 등록되었습니다. 감사합니다!");
+      currentList.splice(1, 0, newItem);
+      localStorage.setItem('pickle_modern_list', JSON.stringify(currentList));
+      renderFeed();
+      toggleDonate();
+      showToast("초대장이 성공적으로 등록되었어요");
       shootConfetti();
     }
 
-    renderList();
+    renderFeed();
   </script>
 </body>
 </html>
